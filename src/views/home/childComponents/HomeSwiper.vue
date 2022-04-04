@@ -2,9 +2,12 @@
   <div id="home">
        <swiper>
       <swiper-item v-for="(item,index) in banners" :key="index">
-        <a :href="item.link">
+        <!-- <a :href="item.link">
           <img :src="item.image" alt="">
-        </a>
+        </a> -->
+        <!-- <a :href="item.link"> -->
+          <img :src="item.image" alt="">
+        <!-- </a> -->
       </swiper-item>
     </swiper>
   </div>
