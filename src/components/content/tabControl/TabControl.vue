@@ -32,6 +32,8 @@ export default {
   methods: {
     itemClick(index) {
       this.currentIndex = index
+      this.$emit('tabClick', index)
+      //外面向组件内传数据 props 里面向外面传数据 $emit
     }
   }
 }
@@ -45,6 +47,7 @@ export default {
     height: 40px;
     line-height: 40px;
     background-color: #fff;
+    z-index: 9
   }
   .tab-control-item {
     flex: 1;

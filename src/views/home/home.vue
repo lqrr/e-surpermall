@@ -4,7 +4,12 @@
     <home-swiper :banners="banners"/>
     <recommend-view :recommends="recommends"/>
     <feature-view/>
-    <tab-control :titles="['流行', '新款', '精选']" class="tab-control"/>
+    <tab-control :titles="['流行', '新款', '精选']"
+                 class="tab-control"
+                 @tabClick="tabClick"
+    />
+    <!-- 此处无需传值这是子组件向父组件传值， 监听的是自定义事件， 默认会把值传入到你父组件定义的方法中 -->
+    <goods-list :goods="showGoods"/>
      <ul>
        <li>1</li>
        <li>2</li>
@@ -54,12 +59,13 @@
 
 import NavBar from '../../components/common/navbar/NavBar.vue'
 import TabControl from '../../components/content/tabControl/TabControl.vue'
+import GoodsList from '../../components/content/goods/GoodsList.vue'
 
 import HomeSwiper from './childComponents/HomeSwiper.vue'
 import RecommendView from './childComponents/RecommendView.vue'
 import FeatureView from './childComponents/FeatureView.vue'
 
-import { getHomeMultiData } from '../../network/home.js'
+import { getHomeMultiData, getHomeGoods } from '../../network/home.js'
 
 export default {
   name: "home",
@@ -67,6 +73,12 @@ export default {
     return {
       banners: [],
       recommends: [],
+      goods: {
+        'pop': {page: 0, list: []},
+        'new': {page: 0, list: []},
+        'sell': {page: 0, list: []}
+      },
+      currentType: 'pop'
     };
   },
   components: {
@@ -74,15 +86,50 @@ export default {
     HomeSwiper,
     RecommendView,
     FeatureView,
-    TabControl
+    TabControl,
+    GoodsList
+  },
+  computed: {
+    showGoods() {
+      return this.goods[this.currentType].list
+    }
   },
   created() {
-    //请求多个数据
-    getHomeMultiData().then(res => {
-      console.log(res);
-      this.banners = res.data.data.banner.list
-      this.recommends = res.data.data.recommend.list
+    this.getHomeMultiData()
+    this.getHomeGoods('pop')
+    this.getHomeGoods('sell')
+    this.getHomeGoods('new')
+
+  },
+  methods: {
+    /**
+     * 事件监听相关的方法
+     */
+    tabClick(index) {
+      console.log(index);
+      // this.cuttentIndex = Object.keys(this.goods)[index]
+      this.currentType = index == 1 ? "pop" : index == 2 ? "new" : "sell"; 
+    },
+    /**
+     * 网络请求相关的方法
+     */
+    getHomeMultiData() {
+      //请求多个数据
+      getHomeMultiData().then(res => {
+        console.log(res);
+        this.banners = res.data.data.banner.list
+        this.recommends = res.data.data.recommend.list
+      })
+    },
+    getHomeGoods(type){
+      const page = this.goods[type].page + 1
+      getHomeGoods(type, page).then(res => {
+        // 数组响应式的方法push，pop，shift,unshift,splice,sort,reverse
+        this.goods[type].list.push(...res.data.data.list)
+        this.goods[type].page += 1
+        console.log(res);
     })
+    }
   }
 };
 </script>
